@@ -6,6 +6,22 @@ import { Button } from "@/components/ui/button";
 
 const projects = [
   {
+    title: "E-commerce Website",
+    description:
+      "A complete e-commerce platform with product management, shopping cart, user authentication, and order processing capabilities.",
+    features: [
+      "User authentication and authorization",
+      "Product catalog with categories and filters",
+      "Shopping cart and checkout system",
+      "Order management and tracking",
+      "Responsive design for all devices",
+    ],
+    technologies: ["MongoDB", "Express.js", "React.js", "Node.js", "JWT", "REST API"],
+    githubFrontend: "https://github.com/Masood-Abbas/ecommerce-frontend.git",
+    githubBackend: "https://github.com/Masood-Abbas/ecommerce-backend.git",
+    icon: ExternalLink,
+  },
+  {
     title: "Social Media App",
     description:
       "A full-featured social media application with real-time features including authentication, posts, likes, comments, and replies.",
@@ -53,16 +69,44 @@ const Projects = () => {
                         <p className="text-muted-foreground">Full Stack Application</p>
                       </div>
                     </div>
-                    <a
-                      href={project.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Button variant="outline" size="sm" className="gap-2">
-                        <Github className="h-4 w-4" />
-                        View Code
-                      </Button>
-                    </a>
+                    <div className="flex gap-2">
+                      {project.github && (
+                        <a
+                          href={project.github}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Button variant="outline" size="sm" className="gap-2">
+                            <Github className="h-4 w-4" />
+                            View Code
+                          </Button>
+                        </a>
+                      )}
+                      {project.githubFrontend && (
+                        <a
+                          href={project.githubFrontend}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Button variant="outline" size="sm" className="gap-2">
+                            <Github className="h-4 w-4" />
+                            Frontend
+                          </Button>
+                        </a>
+                      )}
+                      {project.githubBackend && (
+                        <a
+                          href={project.githubBackend}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Button variant="outline" size="sm" className="gap-2">
+                            <Github className="h-4 w-4" />
+                            Backend
+                          </Button>
+                        </a>
+                      )}
+                    </div>
                   </div>
 
                   <p className="text-muted-foreground mb-6">{project.description}</p>
