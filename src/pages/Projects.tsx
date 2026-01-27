@@ -10,13 +10,14 @@ const projects = [
     description:
       "A complete e-commerce platform with product management, shopping cart, user authentication, and order processing capabilities.",
     features: [
-      "User authentication and authorization",
+      "Login with Google authentication",
+      "Redux Toolkit for state management",
       "Product catalog with categories and filters",
       "Shopping cart and checkout system",
       "Order management and tracking",
       "Responsive design for all devices",
     ],
-    technologies: ["MongoDB", "Express.js", "React.js", "Node.js", "JWT", "REST API"],
+    technologies: ["MongoDB", "Express.js", "React.js", "Node.js", "Redux Toolkit", "Google OAuth", "JWT", "REST API"],
     githubFrontend: "https://github.com/Masood-Abbas/ecommerce-frontend.git",
     githubBackend: "https://github.com/Masood-Abbas/ecommerce-backend.git",
     icon: ExternalLink,
@@ -48,7 +49,7 @@ const Projects = () => {
             subtitle="Featured work showcasing my development expertise"
           />
 
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto space-y-8">
             {projects.map((project, index) => (
               <motion.div
                 key={index}
