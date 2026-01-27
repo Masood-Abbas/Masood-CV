@@ -40,11 +40,24 @@ const Home = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8"
+              className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-4"
             >
               I build efficient, user-friendly web applications with modern technologies.
               Passionate about creating seamless digital experiences.
             </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.25 }}
+              className="flex flex-wrap justify-center gap-3 mb-8"
+            >
+              {["React.js", "Node.js", "MongoDB", "Express.js", "TypeScript"].map((tech) => (
+                <span key={tech} className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm border border-primary/20">
+                  {tech}
+                </span>
+              ))}
+            </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 30 }}

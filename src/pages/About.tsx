@@ -29,11 +29,20 @@ const About = () => {
               className="glass-card rounded-2xl p-8 mb-8"
             >
               <h3 className="text-2xl font-semibold mb-4">Who I Am</h3>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                I am a passionate and dedicated MERN stack developer with a strong foundation in modern web technologies. 
+                With expertise in HTML5, CSS3, JavaScript (ES6), Node.js, Express.js, MongoDB, and React.js, I specialize 
+                in building scalable, high-performance web applications that deliver exceptional user experiences.
+              </p>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                My approach combines clean code practices with innovative problem-solving to create solutions that are 
+                both technically robust and user-friendly. I have hands-on experience developing full-stack applications, 
+                RESTful APIs, and real-time features using WebSockets and modern authentication systems.
+              </p>
               <p className="text-muted-foreground leading-relaxed">
-                I am a dedicated MERN stack developer with expertise in HTML5, CSS3, JavaScript (ES6), 
-                Node.js, Express.js, MongoDB, and React.js. I excel in creating efficient, user-friendly 
-                web applications and developing robust RESTful APIs. Committed to continuous learning, 
-                I aim to drive innovation and solve complex problems through advanced web development techniques.
+                Committed to continuous learning and staying updated with the latest industry trends, I thrive in 
+                collaborative environments where I can contribute to meaningful projects and grow alongside talented teams. 
+                My goal is to leverage technology to solve complex problems and create impactful digital solutions.
               </p>
             </motion.div>
 
@@ -69,10 +78,17 @@ const About = () => {
                 <GraduationCap className="h-6 w-6 text-primary" />
                 Education
               </h3>
-              <div className="border-l-2 border-primary/30 pl-6">
-                <h4 className="text-lg font-medium">Bachelor of Science in Information Technology</h4>
-                <p className="text-muted-foreground">University of the Punjab, Lahore</p>
-                <span className="text-sm text-primary">Graduated 2024</span>
+              <div className="space-y-6">
+                <div className="border-l-2 border-primary/30 pl-6">
+                  <h4 className="text-lg font-medium">Bachelor of Science in Information Technology</h4>
+                  <p className="text-muted-foreground">University of the Punjab, Lahore</p>
+                  <span className="text-sm text-primary">Graduated 2024</span>
+                </div>
+                <div className="border-l-2 border-primary/30 pl-6">
+                  <h4 className="text-lg font-medium">FSC (Pre-Engineering)</h4>
+                  <p className="text-muted-foreground">Unique Group of Institutions</p>
+                  <span className="text-sm text-primary">Completed 2019</span>
+                </div>
               </div>
             </motion.div>
           </div>
