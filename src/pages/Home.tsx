@@ -3,19 +3,11 @@ import { ArrowDown, Download, Github, Linkedin, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Layout from "@/components/layout/Layout";
-import { Suspense, lazy } from "react";
-
-const FloatingShape = lazy(() => import("@/components/3d/FloatingShape"));
 
 const Home = () => {
   return (
     <Layout>
       <section className="min-h-[calc(100vh-4rem)] flex items-center justify-center relative overflow-hidden">
-        {/* 3D Background */}
-        <Suspense fallback={<div className="absolute inset-0 bg-gradient-to-b from-background to-card" />}>
-          <FloatingShape />
-        </Suspense>
-
         {/* Background Elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float" />

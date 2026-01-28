@@ -2,6 +2,9 @@ import { motion } from "framer-motion";
 import { MapPin, Mail, Phone, GraduationCap } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import SectionHeading from "@/components/ui/SectionHeading";
+import { Suspense, lazy } from "react";
+
+const FloatingShape = lazy(() => import("@/components/3d/FloatingShape"));
 
 const About = () => {
   const details = [
@@ -13,8 +16,13 @@ const About = () => {
 
   return (
     <Layout>
-      <section className="py-20 min-h-screen">
-        <div className="container mx-auto px-4">
+      <section className="py-20 min-h-screen relative overflow-hidden">
+        {/* 3D Background */}
+        <Suspense fallback={<div className="absolute inset-0 bg-gradient-to-b from-background to-card" />}>
+          <FloatingShape />
+        </Suspense>
+
+        <div className="container mx-auto px-4 relative z-10">
           <SectionHeading
             title="About Me"
             subtitle="Get to know more about my background and expertise"
