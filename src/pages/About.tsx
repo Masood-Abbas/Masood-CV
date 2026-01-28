@@ -4,7 +4,7 @@ import Layout from "@/components/layout/Layout";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { Suspense, lazy } from "react";
 
-const FloatingShape = lazy(() => import("@/components/3d/FloatingShape"));
+const Interactive3DBackground = lazy(() => import("@/components/3d/Interactive3DBackground"));
 
 const About = () => {
   const details = [
@@ -17,9 +17,9 @@ const About = () => {
   return (
     <Layout>
       <section className="py-20 min-h-screen relative overflow-hidden">
-        {/* 3D Background */}
+        {/* Interactive 3D Background */}
         <Suspense fallback={<div className="absolute inset-0 bg-gradient-to-b from-background to-card" />}>
-          <FloatingShape />
+          <Interactive3DBackground />
         </Suspense>
 
         <div className="container mx-auto px-4 relative z-10">

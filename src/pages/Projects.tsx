@@ -1,8 +1,11 @@
 import { motion } from "framer-motion";
-import { ExternalLink, Github, MessageCircle, Heart, Users } from "lucide-react";
+import { ExternalLink, Github, Users } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/button";
+import { Suspense, lazy } from "react";
+
+const Interactive3DBackground = lazy(() => import("@/components/3d/Interactive3DBackground"));
 
 const projects = [
   {
@@ -42,8 +45,13 @@ const projects = [
 const Projects = () => {
   return (
     <Layout>
-      <section className="py-20 min-h-screen">
-        <div className="container mx-auto px-4">
+      <section className="py-20 min-h-screen relative overflow-hidden">
+        {/* Interactive 3D Background */}
+        <Suspense fallback={<div className="absolute inset-0 bg-gradient-to-b from-background to-card" />}>
+          <Interactive3DBackground />
+        </Suspense>
+
+        <div className="container mx-auto px-4 relative z-10">
           <SectionHeading
             title="Projects"
             subtitle="Featured work showcasing my development expertise"
@@ -70,7 +78,7 @@ const Projects = () => {
                         <p className="text-muted-foreground">Full Stack Application</p>
                       </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap">
                       {project.github && (
                         <a
                           href={project.github}

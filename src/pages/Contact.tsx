@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { Suspense, lazy } from "react";
+
+const Interactive3DBackground = lazy(() => import("@/components/3d/Interactive3DBackground"));
 
 const contactInfo = [
   {
@@ -66,8 +69,13 @@ const Contact = () => {
 
   return (
     <Layout>
-      <section className="py-20 min-h-screen">
-        <div className="container mx-auto px-4">
+      <section className="py-20 min-h-screen relative overflow-hidden">
+        {/* Interactive 3D Background */}
+        <Suspense fallback={<div className="absolute inset-0 bg-gradient-to-b from-background to-card" />}>
+          <Interactive3DBackground />
+        </Suspense>
+
+        <div className="container mx-auto px-4 relative z-10">
           <SectionHeading
             title="Get In Touch"
             subtitle="Have a project in mind? Let's work together!"

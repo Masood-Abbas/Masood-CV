@@ -2,6 +2,9 @@ import { motion } from "framer-motion";
 import { Briefcase, Calendar } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import SectionHeading from "@/components/ui/SectionHeading";
+import { Suspense, lazy } from "react";
+
+const Interactive3DBackground = lazy(() => import("@/components/3d/Interactive3DBackground"));
 
 const experiences = [
   {
@@ -34,8 +37,13 @@ const experiences = [
 const Experience = () => {
   return (
     <Layout>
-      <section className="py-20 min-h-screen">
-        <div className="container mx-auto px-4">
+      <section className="py-20 min-h-screen relative overflow-hidden">
+        {/* Interactive 3D Background */}
+        <Suspense fallback={<div className="absolute inset-0 bg-gradient-to-b from-background to-card" />}>
+          <Interactive3DBackground />
+        </Suspense>
+
+        <div className="container mx-auto px-4 relative z-10">
           <SectionHeading
             title="Experience"
             subtitle="My professional journey and career highlights"
