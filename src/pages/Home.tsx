@@ -3,16 +3,18 @@ import { ArrowDown, Download, Github, Linkedin, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Layout from "@/components/layout/Layout";
+import { Suspense, lazy } from "react";
+
+const Interactive3DBackground = lazy(() => import("@/components/3d/Interactive3DBackground"));
 
 const Home = () => {
   return (
     <Layout>
       <section className="min-h-[calc(100vh-4rem)] flex items-center justify-center relative overflow-hidden">
-        {/* Background Elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float" />
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-primary/5 rounded-full blur-3xl animate-float" style={{ animationDelay: "-3s" }} />
-        </div>
+        {/* Interactive 3D Background */}
+        <Suspense fallback={<div className="absolute inset-0 bg-gradient-to-b from-background to-card" />}>
+          <Interactive3DBackground />
+        </Suspense>
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
@@ -21,7 +23,7 @@ const Home = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6 border border-primary/20">
+              <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6 border border-primary/20 backdrop-blur-sm">
                 MERN Stack Developer
               </span>
             </motion.div>
@@ -53,7 +55,7 @@ const Home = () => {
               className="flex flex-wrap justify-center gap-3 mb-8"
             >
               {["React.js", "Node.js", "MongoDB", "Express.js", "TypeScript"].map((tech) => (
-                <span key={tech} className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm border border-primary/20">
+                <span key={tech} className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm border border-primary/20 backdrop-blur-sm">
                   {tech}
                 </span>
               ))}
@@ -71,7 +73,7 @@ const Home = () => {
                 </Button>
               </Link>
               <a href="/Masood_Abbas.pdf" download>
-                <Button size="lg" variant="outline" className="gap-2">
+                <Button size="lg" variant="outline" className="gap-2 backdrop-blur-sm">
                   <Download className="h-4 w-4" />
                   Download CV
                 </Button>
@@ -117,7 +119,7 @@ const Home = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.8 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
         >
           <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors" aria-label="Scroll to About section">
             <ArrowDown className="h-6 w-6 animate-bounce" />
