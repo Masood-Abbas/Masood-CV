@@ -3,13 +3,21 @@ import { ArrowDown, Download, Github, Linkedin, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Layout from "@/components/layout/Layout";
+import { Suspense, lazy } from "react";
+
+const FloatingShape = lazy(() => import("@/components/3d/FloatingShape"));
 
 const Home = () => {
   return (
     <Layout>
       <section className="min-h-[calc(100vh-4rem)] flex items-center justify-center relative overflow-hidden">
+        {/* 3D Background */}
+        <Suspense fallback={<div className="absolute inset-0 bg-gradient-to-b from-background to-card" />}>
+          <FloatingShape />
+        </Suspense>
+
         {/* Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float" />
           <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-primary/5 rounded-full blur-3xl animate-float" style={{ animationDelay: "-3s" }} />
         </div>
@@ -89,6 +97,7 @@ const Home = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors p-2"
+                aria-label="GitHub Profile"
               >
                 <Github className="h-6 w-6" />
               </a>
@@ -97,12 +106,14 @@ const Home = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors p-2"
+                aria-label="LinkedIn Profile"
               >
                 <Linkedin className="h-6 w-6" />
               </a>
               <a
                 href="mailto:masoodabbas421@gmail.com"
                 className="text-muted-foreground hover:text-primary transition-colors p-2"
+                aria-label="Email Contact"
               >
                 <Mail className="h-6 w-6" />
               </a>
@@ -116,7 +127,7 @@ const Home = () => {
           transition={{ duration: 1, delay: 0.8 }}
           className="absolute bottom-8 left-1/2 -translate-x-1/2"
         >
-          <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">
+          <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors" aria-label="Scroll to About section">
             <ArrowDown className="h-6 w-6 animate-bounce" />
           </Link>
         </motion.div>
