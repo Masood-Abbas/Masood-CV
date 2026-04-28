@@ -1,47 +1,45 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import profilePhoto from "@/assets/profile-photo.jpg";
 
 const navLinks = [
-  { name: "Home", path: "/" },
-  { name: "About", path: "/about" },
-  { name: "Experience", path: "/experience" },
-  { name: "Projects", path: "/projects" },
-  { name: "Skills", path: "/skills" },
-  { name: "Contact", path: "/contact" },
+  { name: "Home", path: "#home" },
+  { name: "About", path: "#about" },
+  { name: "Experience", path: "#experience" },
+  { name: "Projects", path: "#projects" },
+  { name: "Skills", path: "#skills" },
+  { name: "Contact", path: "#contact" },
 ];
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const location = useLocation();
+  
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 glass-card border-b border-border/30">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
+          <a href="#home" className="flex items-center gap-2">
             <img 
               src={profilePhoto} 
               alt="Masood Abbas" 
               className="w-10 h-10 rounded-full object-cover border-2 border-primary/30"
             />
-          </Link>
+          </a>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <Link
+              <a
                 key={link.path}
-                to={link.path}
-                className={`nav-link text-sm font-medium ${
-                  location.pathname === link.path ? "text-foreground active" : ""
-                }`}
+                href={link.path}
+                className="nav-link text-sm font-medium"
               >
                 {link.name}
-              </Link>
+              </a>
             ))}
             <a href="/Masood_Abbas.pdf" download>
               <Button size="sm" className="gap-2">
@@ -73,18 +71,14 @@ const Header = () => {
           >
             <nav className="container mx-auto px-4 py-4 flex flex-col gap-4">
               {navLinks.map((link) => (
-                <Link
+                <a
                   key={link.path}
-                  to={link.path}
+                  href={link.path}
                   onClick={() => setIsOpen(false)}
-                  className={`text-sm font-medium py-2 ${
-                    location.pathname === link.path
-                      ? "text-primary"
-                      : "text-muted-foreground"
-                  }`}
+                  className="text-sm font-medium py-2 text-muted-foreground hover:text-primary"
                 >
                   {link.name}
-                </Link>
+                </a>
               ))}
               <a href="/Masood_Abbas.pdf" download className="w-full">
                 <Button size="sm" className="w-full gap-2">
