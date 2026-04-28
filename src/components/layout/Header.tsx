@@ -6,12 +6,12 @@ import { Button } from "@/components/ui/button";
 import profilePhoto from "@/assets/profile-photo.jpg";
 
 const navLinks = [
-  { name: "Home", path: "/" },
-  { name: "About", path: "/about" },
-  { name: "Experience", path: "/experience" },
-  { name: "Projects", path: "/projects" },
-  { name: "Skills", path: "/skills" },
-  { name: "Contact", path: "/contact" },
+  { name: "Home", path: "#home" },
+  { name: "About", path: "#about" },
+  { name: "Experience", path: "#experience" },
+  { name: "Projects", path: "#projects" },
+  { name: "Skills", path: "#skills" },
+  { name: "Contact", path: "#contact" },
 ];
 
 const Header = () => {
