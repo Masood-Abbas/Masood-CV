@@ -24,6 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import Layout from "@/components/layout/Layout";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { useToast } from "@/hooks/use-toast";
+import cvAsset from "@/assets/Masood_Abbas.pdf.asset.json";
 import { Suspense, lazy } from "react";
 
 const Interactive3DBackground = lazy(() => import("@/components/3d/Interactive3DBackground"));
@@ -174,7 +175,7 @@ const Home = () => {
               <a href="#contact">
                 <Button size="lg" className="gap-2 glow-box">Get In Touch</Button>
               </a>
-              <a href="/Masood_Abbas.pdf" download>
+              <a href={cvAsset.url} download>
                 <Button size="lg" variant="outline" className="gap-2 backdrop-blur-sm">
                   <Download className="h-4 w-4" />
                   Download CV
