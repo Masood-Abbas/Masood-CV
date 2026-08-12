@@ -175,7 +175,7 @@ const Home = () => {
               <a href="#contact">
                 <Button size="lg" className="gap-2 glow-box">Get In Touch</Button>
               </a>
-              <a href="/Masood_Abbas.pdf" download>
+              <a href={cvAsset.url} download>
                 <Button size="lg" variant="outline" className="gap-2 backdrop-blur-sm">
                   <Download className="h-4 w-4" />
                   Download CV
