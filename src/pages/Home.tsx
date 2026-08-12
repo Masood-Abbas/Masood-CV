@@ -24,6 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import Layout from "@/components/layout/Layout";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { useToast } from "@/hooks/use-toast";
+import cvAsset from "@/assets/Masood_Abbas.pdf.asset.json";
 import { Suspense, lazy } from "react";
 
 const Interactive3DBackground = lazy(() => import("@/components/3d/Interactive3DBackground"));
