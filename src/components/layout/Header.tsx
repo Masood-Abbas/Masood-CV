@@ -3,7 +3,6 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import cvAsset from "@/assets/Masood_Abbas.pdf.asset.json";
 import profilePhoto from "@/assets/profile-photo.jpg";
 
 const navLinks = [
@@ -42,7 +41,7 @@ const Header = () => {
                 {link.name}
               </a>
             ))}
-            <a href={cvAsset.url} download>
+            <a href="/Masood_Abbas.pdf" download="Masood_Abbas.pdf">
               <Button size="sm" className="gap-2">
                 <Download className="h-4 w-4" />
                 Download CV
@@ -81,7 +80,7 @@ const Header = () => {
                   {link.name}
                 </a>
               ))}
-              <a href={cvAsset.url} download className="w-full">
+              <a href="/Masood_Abbas.pdf" download="Masood_Abbas.pdf" className="w-full">
                 <Button size="sm" className="w-full gap-2">
                   <Download className="h-4 w-4" />
                   Download CV
