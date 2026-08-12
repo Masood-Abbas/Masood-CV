@@ -3,6 +3,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import cvAsset from "@/assets/Masood_Abbas.pdf.asset.json";
 import profilePhoto from "@/assets/profile-photo.jpg";
 
 const navLinks = [
