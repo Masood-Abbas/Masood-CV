@@ -42,7 +42,7 @@ const Header = () => {
                 {link.name}
               </a>
             ))}
-            <a href="/Masood_Abbas.pdf" download>
+            <a href={cvAsset.url} download>
               <Button size="sm" className="gap-2">
                 <Download className="h-4 w-4" />
                 Download CV
