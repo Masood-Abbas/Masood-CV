@@ -17,6 +17,7 @@ import {
   Server,
   Wrench,
   Send,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +26,8 @@ import Layout from "@/components/layout/Layout";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { useToast } from "@/hooks/use-toast";
 import { Suspense, lazy } from "react";
+import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 
 const Interactive3DBackground = lazy(() => import("@/components/3d/Interactive3DBackground"));
 
@@ -126,16 +129,49 @@ const socialLinks = [
   { icon: Linkedin, label: "LinkedIn", href: "https://linkedin.com/in/masood-abbas" },
 ];
 
+const contactSchema = z.object({
+  name: z.string().trim().min(1, { message: "Please enter your name" }).max(100, { message: "Name must be less than 100 characters" }),
+  email: z.string().trim().email({ message: "Please enter a valid email address" }).max(255, { message: "Email must be less than 255 characters" }),
+  message: z.string().trim().min(1, { message: "Please enter a message" }).max(5000, { message: "Message must be less than 5000 characters" }),
+});
+
 const Home = () => {
   const { toast } = useToast();
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const mailtoLink = `mailto:masoodabbas421@gmail.com?subject=Contact from ${formData.name}&body=${encodeURIComponent(formData.message)}%0A%0AFrom: ${formData.email}`;
-    window.location.href = mailtoLink;
-    toast({ title: "Opening email client...", description: "Your default email client will open to send the message." });
-    setFormData({ name: "", email: "", message: "" });
+    if (isSubmitting) return;
+
+    const parsed = contactSchema.safeParse(formData);
+    if (!parsed.success) {
+      toast({
+        variant: "destructive",
+        title: "Please check the form",
+        description: parsed.error.errors[0].message,
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("submit-contact", {
+        body: parsed.data,
+      });
+      if (error || (data && data.error)) throw new Error(error?.message ?? data.error);
+
+      toast({ title: "Thank you! Your message has been sent successfully." });
+      setFormData({ name: "", email: "", message: "" });
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "Message could not be sent",
+        description: "Something went wrong. Please try again in a moment.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -450,9 +486,9 @@ const Home = () => {
                     <label htmlFor="message" className="block text-sm font-medium mb-2">Message</label>
                     <Textarea id="message" placeholder="Your message..." rows={5} value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} required className="bg-secondary/50 border-border resize-none" />
                   </div>
-                  <Button type="submit" className="w-full gap-2 glow-box">
-                    <Send className="h-4 w-4" />
-                    Send Message
+                  <Button type="submit" disabled={isSubmitting} className="w-full gap-2 glow-box">
+                    {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                    {isSubmitting ? "Sending..." : "Send Message"}
                   </Button>
                 </div>
               </form>
