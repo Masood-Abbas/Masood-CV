@@ -25,6 +25,8 @@ import Layout from "@/components/layout/Layout";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { useToast } from "@/hooks/use-toast";
 import { Suspense, lazy } from "react";
+import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 
 const Interactive3DBackground = lazy(() => import("@/components/3d/Interactive3DBackground"));
 
