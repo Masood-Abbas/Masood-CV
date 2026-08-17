@@ -485,9 +485,9 @@ const Home = () => {
                     <label htmlFor="message" className="block text-sm font-medium mb-2">Message</label>
                     <Textarea id="message" placeholder="Your message..." rows={5} value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} required className="bg-secondary/50 border-border resize-none" />
                   </div>
-                  <Button type="submit" className="w-full gap-2 glow-box">
-                    <Send className="h-4 w-4" />
-                    Send Message
+                  <Button type="submit" disabled={isSubmitting} className="w-full gap-2 glow-box">
+                    {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                    {isSubmitting ? "Sending..." : "Send Message"}
                   </Button>
                 </div>
               </form>
