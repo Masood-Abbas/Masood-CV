@@ -3,7 +3,6 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import profilePhoto from "@/assets/profile-photo.jpg";
 
 const navLinks = [
   { name: "Home", path: "#home" },
@@ -22,15 +21,14 @@ const Header = () => {
     <header className="fixed top-0 left-0 right-0 z-50 glass-card border-b border-border/30">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
-          <a href="#home" className="flex items-center gap-3">
-            <img 
-              src={profilePhoto} 
-              alt="Masood Abbas" 
-              className="w-10 h-10 rounded-full object-cover border-2 border-primary/30"
-            />
-            <span className="text-lg font-bold tracking-tight text-foreground">
-              Masood Abbas
+          <a href="#home" className="group relative flex items-center gap-1">
+            <span className="text-xl font-bold tracking-tight text-foreground transition-colors duration-300 group-hover:text-primary">
+              Masood
             </span>
+            <span className="text-xl font-bold tracking-tight text-primary transition-colors duration-300 group-hover:text-foreground">
+              Abbas
+            </span>
+            <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-primary transition-all duration-300 ease-out group-hover:w-full rounded-full" />
           </a>
 
           {/* Desktop Navigation */}
