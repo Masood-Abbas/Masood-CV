@@ -22,12 +22,15 @@ const Header = () => {
     <header className="fixed top-0 left-0 right-0 z-50 glass-card border-b border-border/30">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
-          <a href="#home" className="flex items-center gap-2">
+          <a href="#home" className="flex items-center gap-3">
             <img 
               src={profilePhoto} 
               alt="Masood Abbas" 
               className="w-10 h-10 rounded-full object-cover border-2 border-primary/30"
             />
+            <span className="text-lg font-bold tracking-tight text-foreground">
+              Masood Abbas
+            </span>
           </a>
 
           {/* Desktop Navigation */}
