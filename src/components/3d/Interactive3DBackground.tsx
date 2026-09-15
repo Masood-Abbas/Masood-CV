@@ -53,7 +53,7 @@ const CoreStructure = ({ pointer, reduceMotion }: SceneProps) => {
             metalness={0.82}
             roughness={0.18}
             transparent
-            opacity={0.76}
+            opacity={0.46}
           />
         </mesh>
         <mesh scale={1.035}>
@@ -62,21 +62,21 @@ const CoreStructure = ({ pointer, reduceMotion }: SceneProps) => {
             color={PALETTE.cyan}
             wireframe
             transparent
-            opacity={0.32}
+            opacity={0.22}
             blending={THREE.AdditiveBlending}
           />
         </mesh>
         <mesh rotation={[Math.PI / 2.8, 0.3, 0]}>
           <torusGeometry args={[2.05, 0.016, 8, 128]} />
-          <meshBasicMaterial color={PALETTE.cyan} transparent opacity={0.52} blending={THREE.AdditiveBlending} />
+          <meshBasicMaterial color={PALETTE.cyan} transparent opacity={0.34} blending={THREE.AdditiveBlending} />
         </mesh>
         <mesh rotation={[1.1, -0.48, 0.4]}>
           <torusGeometry args={[1.78, 0.011, 8, 128]} />
-          <meshBasicMaterial color={PALETTE.blue} transparent opacity={0.34} blending={THREE.AdditiveBlending} />
+          <meshBasicMaterial color={PALETTE.blue} transparent opacity={0.24} blending={THREE.AdditiveBlending} />
         </mesh>
         <mesh rotation={[0.25, 1.18, 0.8]}>
           <torusGeometry args={[2.32, 0.008, 8, 128]} />
-          <meshBasicMaterial color={PALETTE.violet} transparent opacity={0.18} blending={THREE.AdditiveBlending} />
+          <meshBasicMaterial color={PALETTE.violet} transparent opacity={0.14} blending={THREE.AdditiveBlending} />
         </mesh>
         <mesh position={[1.54, 0.92, 0.58]}>
           <sphereGeometry args={[0.075, 16, 16]} />
@@ -242,7 +242,7 @@ const Interactive3DBackground = () => {
   return (
     <div
       ref={containerRef}
-      className="absolute inset-0 z-0 opacity-80"
+      className="absolute inset-0 z-0 opacity-70"
       onMouseMove={handleMouseMove}
       onMouseLeave={resetPointer}
       aria-hidden="true"
