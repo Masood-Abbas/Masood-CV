@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowDown,
@@ -18,6 +18,7 @@ import {
   Wrench,
   Send,
   Loader2,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,14 +32,15 @@ import { supabase } from "@/integrations/supabase/client";
 
 const Interactive3DBackground = lazy(() => import("@/components/3d/Interactive3DBackground"));
 
-const aboutDetails = [
+// ---------- Fallback content (used until/unless CMS data loads) ----------
+const fallbackAboutDetails = [
   { icon: MapPin, label: "Location", value: "Lahore, Punjab" },
   { icon: Mail, label: "Email", value: "masoodabbas421@gmail.com" },
   { icon: Phone, label: "Phone", value: "0304 4606847" },
   { icon: GraduationCap, label: "Degree", value: "BS in Information Technology" },
 ];
 
-const experiences = [
+const fallbackExperiences = [
   {
     title: "Associate Software Engineer",
     company: "Sky IT Services",
@@ -65,7 +67,7 @@ const experiences = [
   },
 ];
 
-const projects = [
+const fallbackProjects = [
   {
     title: "E-commerce Website",
     description:
@@ -81,7 +83,8 @@ const projects = [
     technologies: ["MongoDB", "Express.js", "React.js", "Node.js", "Redux Toolkit", "Google OAuth", "JWT", "REST API"],
     githubFrontend: "https://github.com/Masood-Abbas/ecommerce-frontend.git",
     githubBackend: "https://github.com/Masood-Abbas/ecommerce-backend.git",
-    icon: ExternalLink,
+    github: null as string | null,
+    category: "Full Stack Application",
   },
   {
     title: "Social Media App",
@@ -96,11 +99,13 @@ const projects = [
     ],
     technologies: ["MongoDB", "Express.js", "React.js", "Node.js", "JWT", "WebSockets"],
     github: "https://github.com/Masood-Abbas/Social-Media-app.git",
-    icon: Users,
+    githubFrontend: null as string | null,
+    githubBackend: null as string | null,
+    category: "Full Stack Application",
   },
 ];
 
-const skillCategories = [
+const fallbackSkillCategories = [
   {
     title: "Frontend",
     icon: Code2,
@@ -118,16 +123,38 @@ const skillCategories = [
   },
 ];
 
-const contactInfo = [
-  { icon: Mail, label: "Email", value: "masoodabbas421@gmail.com", href: "mailto:masoodabbas421@gmail.com" },
-  { icon: Phone, label: "Phone", value: "0304 4606847", href: "tel:+923044606847" },
-  { icon: MapPin, label: "Location", value: "Lahore, Punjab", href: null },
+const fallbackEducation = [
+  { degree: "Bachelor of Science in Information Technology", institution: "University of the Punjab, Lahore", period: "Graduated 2024" },
+  { degree: "FSC (Pre-Engineering)", institution: "Unique Group of Institutions", period: "Completed 2019" },
 ];
 
-const socialLinks = [
+const fallbackSocialLinks = [
   { icon: Github, label: "GitHub", href: "https://github.com/Masood-Abbas" },
   { icon: Linkedin, label: "LinkedIn", href: "https://linkedin.com/in/masood-abbas" },
 ];
+
+const fallbackAboutParagraphs = [
+  "I am a passionate and dedicated MERN stack developer with a strong foundation in modern web technologies. With expertise in HTML5, CSS3, JavaScript (ES6), Node.js, Express.js, MongoDB, and React.js, I specialize in building scalable, high-performance web applications that deliver exceptional user experiences.",
+  "My approach combines clean code practices with innovative problem-solving to create solutions that are both technically robust and user-friendly. I have hands-on experience developing full-stack applications, RESTful APIs, and real-time features using WebSockets and modern authentication systems.",
+  "Committed to continuous learning and staying updated with the latest industry trends, I thrive in collaborative environments where I can contribute to meaningful projects and grow alongside talented teams.",
+];
+
+// ---------- Helpers ----------
+const iconMap: Record<string, any> = {
+  github: Github, linkedin: Linkedin, mail: Mail, email: Mail,
+  code2: Code2, server: Server, wrench: Wrench, globe: Globe,
+};
+const pickIcon = (name: string | null | undefined, fallback: any = Globe) =>
+  iconMap[String(name ?? "").toLowerCase()] ?? fallback;
+
+const monthYear = (d: string | null) =>
+  d ? new Date(d).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : null;
+
+const fmtPeriod = (start: string | null, end: string | null, isCurrent: boolean) => {
+  const s = monthYear(start);
+  const e = isCurrent ? "Present" : monthYear(end);
+  return [s, e].filter(Boolean).join(" - ");
+};
 
 const contactSchema = z.object({
   name: z.string().trim().min(1, { message: "Please enter your name" }).max(100, { message: "Name must be less than 100 characters" }),
@@ -139,6 +166,116 @@ const Home = () => {
   const { toast } = useToast();
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [cms, setCms] = useState<any>(null);
+
+  useEffect(() => {
+    (async () => {
+      const db = supabase as any;
+      try {
+        const [profile, hero, cats, skills, exps, edu, projs, socials] = await Promise.all([
+          db.from("profile").select("*").limit(1).maybeSingle(),
+          db.from("hero").select("*").limit(1).maybeSingle(),
+          db.from("skill_categories").select("*").order("display_order"),
+          db.from("skills").select("*").eq("is_active", true).order("display_order"),
+          db.from("experiences").select("*").eq("is_published", true).order("display_order"),
+          db.from("education").select("*").eq("is_published", true).order("display_order"),
+          db.from("projects").select("*").eq("is_published", true).order("display_order"),
+          db.from("social_links").select("*").eq("is_active", true).order("display_order"),
+        ]);
+        setCms({
+          profile: profile.data,
+          hero: hero.data,
+          categories: cats.data ?? [],
+          skills: skills.data ?? [],
+          experiences: exps.data ?? [],
+          education: edu.data ?? [],
+          projects: projs.data ?? [],
+          socials: socials.data ?? [],
+        });
+      } catch {
+        // CMS unavailable — fallback content stays in place
+      }
+    })();
+  }, []);
+
+  // ---------- Derived display data (CMS first, fallback otherwise) ----------
+  const hero = cms?.hero;
+  const profile = cms?.profile;
+
+  const badgeText = hero?.badge_text ?? "MERN Stack Developer";
+  const heroName = hero?.heading ?? "Masood Abbas";
+  const heroDescription = hero?.description ?? "I build efficient, user-friendly web applications with modern technologies. Passionate about creating seamless digital experiences.";
+  const techTags: string[] = hero?.tech_tags?.length ? hero.tech_tags : ["React.js", "Node.js", "MongoDB", "Express.js", "TypeScript"];
+  const showBadge = hero?.show_badge ?? true;
+  const showTechTags = hero?.show_tech_tags ?? true;
+  const showSocials = hero?.show_socials ?? true;
+  const showSecondaryCta = hero?.show_secondary_cta ?? true;
+  const ctaText = hero?.cta_text ?? "Get In Touch";
+  const ctaUrl = hero?.cta_url ?? "#contact";
+  const resumeUrl = profile?.resume_url ?? "/Masood_Abbas.pdf";
+  const secondaryCtaText = hero?.secondary_cta_text ?? "Download CV";
+  const secondaryCtaUrl = hero?.secondary_cta_url ?? resumeUrl;
+
+  const aboutParagraphs: string[] = profile?.about
+    ? String(profile.about).split(/\n\s*\n/).filter(Boolean)
+    : fallbackAboutParagraphs;
+
+  const aboutDetails = profile
+    ? [
+        { icon: MapPin, label: "Location", value: profile.location ?? "—" },
+        { icon: Mail, label: "Email", value: profile.email ?? "—" },
+        { icon: Phone, label: "Phone", value: profile.phone ?? "—" },
+        { icon: GraduationCap, label: "Degree", value: cms?.education?.[0]?.degree ?? "—" },
+      ]
+    : fallbackAboutDetails;
+
+  const experiences = cms?.experiences?.length
+    ? cms.experiences.map((e: any) => ({
+        title: e.job_title,
+        company: e.company,
+        period: fmtPeriod(e.start_date, e.end_date, e.is_current),
+        responsibilities: e.responsibilities ?? [],
+      }))
+    : fallbackExperiences;
+
+  const education = cms?.education?.length
+    ? cms.education.map((e: any) => ({
+        degree: e.degree,
+        institution: e.institution,
+        period: e.is_current ? "Currently studying" : e.end_date ? `Completed ${new Date(e.end_date).getFullYear()}` : "",
+      }))
+    : fallbackEducation;
+
+  const projects = cms?.projects?.length
+    ? cms.projects.map((p: any) => ({
+        title: p.title,
+        description: p.full_description ?? p.short_description ?? "",
+        features: p.features ?? [],
+        technologies: p.technologies ?? [],
+        github: p.github_url,
+        githubFrontend: p.github_url && p.github_backend_url ? p.github_url : null,
+        githubBackend: p.github_backend_url,
+        category: p.category ?? "Project",
+      }))
+    : fallbackProjects;
+
+  const skillCategories = cms?.categories?.length
+    ? cms.categories.map((c: any) => ({
+        title: c.name,
+        icon: pickIcon(c.icon, Code2),
+        skills: cms.skills.filter((s: any) => s.category_id === c.id).map((s: any) => s.name),
+      }))
+    : fallbackSkillCategories;
+
+  const socialLinks = cms?.socials?.length
+    ? cms.socials.map((s: any) => ({ icon: pickIcon(s.icon ?? s.platform), label: s.platform, href: s.url }))
+    : fallbackSocialLinks;
+
+  const contactInfo = [
+    { icon: Mail, label: "Email", value: profile?.email ?? "masoodabbas421@gmail.com", href: `mailto:${profile?.email ?? "masoodabbas421@gmail.com"}` },
+    { icon: Phone, label: "Phone", value: profile?.phone ?? "0304 4606847", href: "tel:+923044606847" },
+    { icon: MapPin, label: "Location", value: profile?.location ?? "Lahore, Punjab", href: null },
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -184,51 +321,55 @@ const Home = () => {
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-              <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6 border border-primary/20 backdrop-blur-sm">
-                MERN Stack Developer
-              </span>
-            </motion.div>
+            {showBadge && (
+              <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+                <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6 border border-primary/20 backdrop-blur-sm">
+                  {badgeText}
+                </span>
+              </motion.div>
+            )}
 
             <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
-              Hi, I'm <span className="gradient-text">Masood Abbas</span>
+              Hi, I'm <span className="gradient-text">{heroName}</span>
             </motion.h1>
 
             <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-4">
-              I build efficient, user-friendly web applications with modern technologies. Passionate about creating seamless digital experiences.
+              {heroDescription}
             </motion.p>
 
-            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.25 }} className="flex flex-wrap justify-center gap-3 mb-8">
-              {["React.js", "Node.js", "MongoDB", "Express.js", "TypeScript"].map((tech) => (
-                <span key={tech} className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm border border-primary/20 backdrop-blur-sm">
-                  {tech}
-                </span>
-              ))}
-            </motion.div>
+            {showTechTags && (
+              <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.25 }} className="flex flex-wrap justify-center gap-3 mb-8">
+                {techTags.map((tech) => (
+                  <span key={tech} className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm border border-primary/20 backdrop-blur-sm">
+                    {tech}
+                  </span>
+                ))}
+              </motion.div>
+            )}
 
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-              <a href="#contact">
-                <Button size="lg" className="gap-2 glow-box">Get In Touch</Button>
+              <a href={ctaUrl}>
+                <Button size="lg" className="gap-2 glow-box">{ctaText}</Button>
               </a>
-              <a href="/Masood_Abbas.pdf" download="Masood_Abbas.pdf">
-                <Button size="lg" variant="outline" className="gap-2 backdrop-blur-sm">
-                  <Download className="h-4 w-4" />
-                  Download CV
-                </Button>
-              </a>
+              {showSecondaryCta && (
+                <a href={secondaryCtaUrl} download={secondaryCtaUrl.endsWith(".pdf") ? secondaryCtaUrl.split("/").pop() : undefined}>
+                  <Button size="lg" variant="outline" className="gap-2 backdrop-blur-sm">
+                    <Download className="h-4 w-4" />
+                    {secondaryCtaText}
+                  </Button>
+                </a>
+              )}
             </motion.div>
 
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 0.4 }} className="flex items-center justify-center gap-6">
-              <a href="https://github.com/Masood-Abbas" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors p-2" aria-label="GitHub Profile">
-                <Github className="h-6 w-6" />
-              </a>
-              <a href="https://linkedin.com/in/masood-abbas" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors p-2" aria-label="LinkedIn Profile">
-                <Linkedin className="h-6 w-6" />
-              </a>
-              <a href="mailto:masoodabbas421@gmail.com" className="text-muted-foreground hover:text-primary transition-colors p-2" aria-label="Email Contact">
-                <Mail className="h-6 w-6" />
-              </a>
-            </motion.div>
+            {showSocials && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 0.4 }} className="flex items-center justify-center gap-6">
+                {socialLinks.map((link) => (
+                  <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors p-2" aria-label={link.label}>
+                    <link.icon className="h-6 w-6" />
+                  </a>
+                ))}
+              </motion.div>
+            )}
           </div>
         </div>
 
@@ -249,15 +390,11 @@ const Home = () => {
           <div className="max-w-4xl mx-auto">
             <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="glass-card rounded-2xl p-8 mb-8">
               <h3 className="text-2xl font-semibold mb-4">Who I Am</h3>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                I am a passionate and dedicated MERN stack developer with a strong foundation in modern web technologies. With expertise in HTML5, CSS3, JavaScript (ES6), Node.js, Express.js, MongoDB, and React.js, I specialize in building scalable, high-performance web applications that deliver exceptional user experiences.
-              </p>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                My approach combines clean code practices with innovative problem-solving to create solutions that are both technically robust and user-friendly. I have hands-on experience developing full-stack applications, RESTful APIs, and real-time features using WebSockets and modern authentication systems.
-              </p>
-              <p className="text-muted-foreground leading-relaxed">
-                Committed to continuous learning and staying updated with the latest industry trends, I thrive in collaborative environments where I can contribute to meaningful projects and grow alongside talented teams.
-              </p>
+              {aboutParagraphs.map((p, i) => (
+                <p key={i} className={`text-muted-foreground leading-relaxed ${i < aboutParagraphs.length - 1 ? "mb-4" : ""}`}>
+                  {p}
+                </p>
+              ))}
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -280,16 +417,13 @@ const Home = () => {
                 Education
               </h3>
               <div className="space-y-6">
-                <div className="border-l-2 border-primary/30 pl-6">
-                  <h4 className="text-lg font-medium">Bachelor of Science in Information Technology</h4>
-                  <p className="text-muted-foreground">University of the Punjab, Lahore</p>
-                  <span className="text-sm text-primary">Graduated 2024</span>
-                </div>
-                <div className="border-l-2 border-primary/30 pl-6">
-                  <h4 className="text-lg font-medium">FSC (Pre-Engineering)</h4>
-                  <p className="text-muted-foreground">Unique Group of Institutions</p>
-                  <span className="text-sm text-primary">Completed 2019</span>
-                </div>
+                {education.map((edu) => (
+                  <div key={edu.degree} className="border-l-2 border-primary/30 pl-6">
+                    <h4 className="text-lg font-medium">{edu.degree}</h4>
+                    <p className="text-muted-foreground">{edu.institution}</p>
+                    {edu.period && <span className="text-sm text-primary">{edu.period}</span>}
+                  </div>
+                ))}
               </div>
             </motion.div>
           </div>
@@ -343,60 +477,67 @@ const Home = () => {
         <div className="container mx-auto px-4 relative z-10">
           <SectionHeading title="Projects" subtitle="Featured work showcasing my development expertise" />
           <div className="max-w-4xl mx-auto space-y-8">
-            {projects.map((project, index) => (
-              <motion.div key={index} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="glass-card rounded-2xl overflow-hidden">
-                <div className="p-8">
-                  <div className="flex items-start justify-between mb-6 flex-wrap gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="p-4 rounded-xl bg-primary/10 text-primary">
-                        <project.icon className="h-8 w-8" />
+            {projects.map((project, index) => {
+              const ProjectIcon = index % 2 === 0 ? ExternalLink : Users;
+              return (
+                <motion.div key={index} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="glass-card rounded-2xl overflow-hidden">
+                  <div className="p-8">
+                    <div className="flex items-start justify-between mb-6 flex-wrap gap-4">
+                      <div className="flex items-center gap-4">
+                        <div className="p-4 rounded-xl bg-primary/10 text-primary">
+                          <ProjectIcon className="h-8 w-8" />
+                        </div>
+                        <div>
+                          <h3 className="text-2xl font-bold">{project.title}</h3>
+                          <p className="text-muted-foreground">{project.category}</p>
+                        </div>
                       </div>
+                      <div className="flex gap-2 flex-wrap">
+                        {project.github && !project.githubFrontend && (
+                          <a href={project.github} target="_blank" rel="noopener noreferrer">
+                            <Button variant="outline" size="sm" className="gap-2"><Github className="h-4 w-4" />View Code</Button>
+                          </a>
+                        )}
+                        {project.githubFrontend && (
+                          <a href={project.githubFrontend} target="_blank" rel="noopener noreferrer">
+                            <Button variant="outline" size="sm" className="gap-2"><Github className="h-4 w-4" />Frontend</Button>
+                          </a>
+                        )}
+                        {project.githubBackend && (
+                          <a href={project.githubBackend} target="_blank" rel="noopener noreferrer">
+                            <Button variant="outline" size="sm" className="gap-2"><Github className="h-4 w-4" />Backend</Button>
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-muted-foreground mb-6">{project.description}</p>
+                    {project.features.length > 0 && (
+                      <div className="mb-6">
+                        <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Key Features</h4>
+                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {project.features.map((feature, i) => (
+                            <li key={i} className="flex items-start gap-2 text-sm">
+                              <span className="text-primary mt-0.5">✓</span>
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {project.technologies.length > 0 && (
                       <div>
-                        <h3 className="text-2xl font-bold">{project.title}</h3>
-                        <p className="text-muted-foreground">Full Stack Application</p>
+                        <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Technologies Used</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {project.technologies.map((tech) => (
+                            <span key={tech} className="skill-badge text-xs">{tech}</span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex gap-2 flex-wrap">
-                      {project.github && (
-                        <a href={project.github} target="_blank" rel="noopener noreferrer">
-                          <Button variant="outline" size="sm" className="gap-2"><Github className="h-4 w-4" />View Code</Button>
-                        </a>
-                      )}
-                      {project.githubFrontend && (
-                        <a href={project.githubFrontend} target="_blank" rel="noopener noreferrer">
-                          <Button variant="outline" size="sm" className="gap-2"><Github className="h-4 w-4" />Frontend</Button>
-                        </a>
-                      )}
-                      {project.githubBackend && (
-                        <a href={project.githubBackend} target="_blank" rel="noopener noreferrer">
-                          <Button variant="outline" size="sm" className="gap-2"><Github className="h-4 w-4" />Backend</Button>
-                        </a>
-                      )}
-                    </div>
+                    )}
                   </div>
-                  <p className="text-muted-foreground mb-6">{project.description}</p>
-                  <div className="mb-6">
-                    <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Key Features</h4>
-                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {project.features.map((feature, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm">
-                          <span className="text-primary mt-0.5">✓</span>
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Technologies Used</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {project.technologies.map((tech) => (
-                        <span key={tech} className="skill-badge text-xs">{tech}</span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -418,7 +559,7 @@ const Home = () => {
                   <h3 className="text-xl font-semibold">{category.title}</h3>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {category.skills.map((skill, i) => (
+                  {category.skills.map((skill: string, i: number) => (
                     <motion.span key={skill} initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.3, delay: index * 0.1 + i * 0.05 }} className="skill-badge">
                       {skill}
                     </motion.span>
