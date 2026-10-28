@@ -1,5 +1,6 @@
 import CrudPage from "@/components/admin/CrudPage";
 import SingletonForm from "./SingletonForm";
+import Media from "./Media";
 import * as c from "./configs";
 
 export const ProjectsAdmin = () => <CrudPage config={c.projectsConfig} />;
