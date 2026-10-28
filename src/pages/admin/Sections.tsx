@@ -85,9 +85,4 @@ export const SettingsAdmin = () => (
   />
 );
 
-export const MediaAdmin = () => (
-  <div className="glass-card rounded-2xl p-12 text-center max-w-xl">
-    <h1 className="text-2xl font-bold mb-2">Media Library</h1>
-    <p className="text-muted-foreground">File storage is being set up. For now, paste image or file links directly into the URL fields.</p>
-  </div>
-);
+export const MediaAdmin = () => <Media />;
