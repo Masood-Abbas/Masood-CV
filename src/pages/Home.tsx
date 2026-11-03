@@ -1,24 +1,17 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowDown,
   Download,
   Github,
-  Linkedin,
   Mail,
-  MapPin,
-  Phone,
-  GraduationCap,
+  Send,
+  Loader2,
   Briefcase,
   Calendar,
   ExternalLink,
   Users,
-  Code2,
-  Server,
-  Wrench,
-  Send,
-  Loader2,
-  Globe,
+  GraduationCap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,132 +22,19 @@ import { useToast } from "@/hooks/use-toast";
 import { Suspense, lazy } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  site,
+  hero as heroData,
+  about as aboutData,
+  education,
+  experiences,
+  projects,
+  skillCategories,
+  socialLinks,
+  contactInfo,
+} from "@/data/portfolio";
 
 const Interactive3DBackground = lazy(() => import("@/components/3d/Interactive3DBackground"));
-
-// ---------- Fallback content (used until/unless CMS data loads) ----------
-const fallbackAboutDetails = [
-  { icon: MapPin, label: "Location", value: "Lahore, Punjab" },
-  { icon: Mail, label: "Email", value: "masoodabbas421@gmail.com" },
-  { icon: Phone, label: "Phone", value: "0304 4606847" },
-  { icon: GraduationCap, label: "Degree", value: "BS in Information Technology" },
-];
-
-const fallbackExperiences = [
-  {
-    title: "Associate Software Engineer",
-    company: "Sky IT Services",
-    period: "December 2024 - September 2025",
-    responsibilities: [
-      "Developed SEO-optimized and fast-loading web applications",
-      "Skilled in responsive web design and cross-browser compatibility",
-      "Proficient in Node.js and Express.js for building scalable RESTful APIs",
-      "Experience with MongoDB (Mongoose) and SQL databases for data storage and management",
-      "Developed secure authentication & authorization using JWT",
-    ],
-  },
-  {
-    title: "Training Software Engineer",
-    company: "SeeBiz PVT LTD",
-    period: "January 2024 - July 2024",
-    responsibilities: [
-      "Completed comprehensive training in HTML, CSS, JavaScript (ES6), React.js, Node.js, Express.js, and MongoDB",
-      "Applied skills in web development to design and develop responsive web pages",
-      "Utilized Node.js and Express.js to build backend services and RESTful APIs",
-      "Enhanced proficiency in advanced JavaScript and frontend frameworks",
-      "Gained practical experience in integrating frontend and backend components",
-    ],
-  },
-];
-
-const fallbackProjects = [
-  {
-    title: "E-commerce Website",
-    description:
-      "A complete e-commerce platform with product management, shopping cart, user authentication, and order processing capabilities.",
-    features: [
-      "Login with Google authentication",
-      "Redux Toolkit for state management",
-      "Product catalog with categories and filters",
-      "Shopping cart and checkout system",
-      "Order management and tracking",
-      "Responsive design for all devices",
-    ],
-    technologies: ["MongoDB", "Express.js", "React.js", "Node.js", "Redux Toolkit", "Google OAuth", "JWT", "REST API"],
-    githubFrontend: "https://github.com/Masood-Abbas/ecommerce-frontend.git",
-    githubBackend: "https://github.com/Masood-Abbas/ecommerce-backend.git",
-    github: null as string | null,
-    category: "Full Stack Application",
-  },
-  {
-    title: "Social Media App",
-    description:
-      "A full-featured social media application with real-time features including authentication, posts, likes, comments, and replies.",
-    features: [
-      "Authentication and authorization with JWT",
-      "Secure user login and registration",
-      "User roles and permissions management",
-      "Real-time like, comment, and reply features using WebSockets",
-      "Reusable React components with Context API",
-    ],
-    technologies: ["MongoDB", "Express.js", "React.js", "Node.js", "JWT", "WebSockets"],
-    github: "https://github.com/Masood-Abbas/Social-Media-app.git",
-    githubFrontend: null as string | null,
-    githubBackend: null as string | null,
-    category: "Full Stack Application",
-  },
-];
-
-const fallbackSkillCategories = [
-  {
-    title: "Frontend",
-    icon: Code2,
-    skills: ["HTML5", "CSS3", "JavaScript (ES6)", "React.js", "Redux Toolkit", "Responsive Design", "Bootstrap", "Tailwind CSS"],
-  },
-  {
-    title: "Backend",
-    icon: Server,
-    skills: ["Node.js", "Express.js", "MongoDB", "RESTful APIs", "JWT Authentication", "Mongoose", "SQL"],
-  },
-  {
-    title: "Tools & Technologies",
-    icon: Wrench,
-    skills: ["Git", "GitHub", "NPM", "VS Code", "Postman", "WebSockets"],
-  },
-];
-
-const fallbackEducation = [
-  { degree: "Bachelor of Science in Information Technology", institution: "University of the Punjab, Lahore", period: "Graduated 2024" },
-  { degree: "FSC (Pre-Engineering)", institution: "Unique Group of Institutions", period: "Completed 2019" },
-];
-
-const fallbackSocialLinks = [
-  { icon: Github, label: "GitHub", href: "https://github.com/Masood-Abbas" },
-  { icon: Linkedin, label: "LinkedIn", href: "https://linkedin.com/in/masood-abbas" },
-];
-
-const fallbackAboutParagraphs = [
-  "I am a passionate and dedicated MERN stack developer with a strong foundation in modern web technologies. With expertise in HTML5, CSS3, JavaScript (ES6), Node.js, Express.js, MongoDB, and React.js, I specialize in building scalable, high-performance web applications that deliver exceptional user experiences.",
-  "My approach combines clean code practices with innovative problem-solving to create solutions that are both technically robust and user-friendly. I have hands-on experience developing full-stack applications, RESTful APIs, and real-time features using WebSockets and modern authentication systems.",
-  "Committed to continuous learning and staying updated with the latest industry trends, I thrive in collaborative environments where I can contribute to meaningful projects and grow alongside talented teams.",
-];
-
-// ---------- Helpers ----------
-const iconMap: Record<string, any> = {
-  github: Github, linkedin: Linkedin, mail: Mail, email: Mail,
-  code2: Code2, server: Server, wrench: Wrench, globe: Globe,
-};
-const pickIcon = (name: string | null | undefined, fallback: any = Globe) =>
-  iconMap[String(name ?? "").toLowerCase()] ?? fallback;
-
-const monthYear = (d: string | null) =>
-  d ? new Date(d).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : null;
-
-const fmtPeriod = (start: string | null, end: string | null, isCurrent: boolean) => {
-  const s = monthYear(start);
-  const e = isCurrent ? "Present" : monthYear(end);
-  return [s, e].filter(Boolean).join(" - ");
-};
 
 const contactSchema = z.object({
   name: z.string().trim().min(1, { message: "Please enter your name" }).max(100, { message: "Name must be less than 100 characters" }),
@@ -166,116 +46,23 @@ const Home = () => {
   const { toast } = useToast();
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [cms, setCms] = useState<any>(null);
 
-  useEffect(() => {
-    (async () => {
-      const db = supabase as any;
-      try {
-        const [profile, hero, cats, skills, exps, edu, projs, socials] = await Promise.all([
-          db.from("profile").select("*").limit(1).maybeSingle(),
-          db.from("hero").select("*").limit(1).maybeSingle(),
-          db.from("skill_categories").select("*").order("display_order"),
-          db.from("skills").select("*").eq("is_active", true).order("display_order"),
-          db.from("experiences").select("*").eq("is_published", true).order("display_order"),
-          db.from("education").select("*").eq("is_published", true).order("display_order"),
-          db.from("projects").select("*").eq("is_published", true).order("display_order"),
-          db.from("social_links").select("*").eq("is_active", true).order("display_order"),
-        ]);
-        setCms({
-          profile: profile.data,
-          hero: hero.data,
-          categories: cats.data ?? [],
-          skills: skills.data ?? [],
-          experiences: exps.data ?? [],
-          education: edu.data ?? [],
-          projects: projs.data ?? [],
-          socials: socials.data ?? [],
-        });
-      } catch {
-        // CMS unavailable — fallback content stays in place
-      }
-    })();
-  }, []);
+  // ---------- Display data (all from src/data/portfolio.ts) ----------
+  const badgeText = heroData.badge;
+  const heroName = heroData.name;
+  const heroDescription = heroData.description;
+  const techTags = heroData.techTags;
+  const showBadge = heroData.showBadge;
+  const showTechTags = heroData.showTechTags;
+  const showSocials = heroData.showSocials;
+  const showSecondaryCta = heroData.secondaryCta.show;
+  const ctaText = heroData.cta.text;
+  const ctaUrl = heroData.cta.href;
+  const secondaryCtaText = heroData.secondaryCta.text;
+  const secondaryCtaUrl = heroData.secondaryCta.href || site.cvPath;
 
-  // ---------- Derived display data (CMS first, fallback otherwise) ----------
-  const hero = cms?.hero;
-  const profile = cms?.profile;
-
-  const badgeText = hero?.badge_text ?? "MERN Stack Developer";
-  const heroName = hero?.heading ?? "Masood Abbas";
-  const heroDescription = hero?.description ?? "I build efficient, user-friendly web applications with modern technologies. Passionate about creating seamless digital experiences.";
-  const techTags: string[] = hero?.tech_tags?.length ? hero.tech_tags : ["React.js", "Node.js", "MongoDB", "Express.js", "TypeScript"];
-  const showBadge = hero?.show_badge ?? true;
-  const showTechTags = hero?.show_tech_tags ?? true;
-  const showSocials = hero?.show_socials ?? true;
-  const showSecondaryCta = hero?.show_secondary_cta ?? true;
-  const ctaText = hero?.cta_text ?? "Get In Touch";
-  const ctaUrl = hero?.cta_url ?? "#contact";
-  const resumeUrl = profile?.resume_url ?? "/Masood_Abbas.pdf";
-  const secondaryCtaText = hero?.secondary_cta_text ?? "Download CV";
-  const secondaryCtaUrl = hero?.secondary_cta_url ?? resumeUrl;
-
-  const aboutParagraphs: string[] = profile?.about
-    ? String(profile.about).split(/\n\s*\n/).filter(Boolean)
-    : fallbackAboutParagraphs;
-
-  const aboutDetails = profile
-    ? [
-        { icon: MapPin, label: "Location", value: profile.location ?? "—" },
-        { icon: Mail, label: "Email", value: profile.email ?? "—" },
-        { icon: Phone, label: "Phone", value: profile.phone ?? "—" },
-        { icon: GraduationCap, label: "Degree", value: cms?.education?.[0]?.degree ?? "—" },
-      ]
-    : fallbackAboutDetails;
-
-  const experiences = cms?.experiences?.length
-    ? cms.experiences.map((e: any) => ({
-        title: e.job_title,
-        company: e.company,
-        period: fmtPeriod(e.start_date, e.end_date, e.is_current),
-        responsibilities: e.responsibilities ?? [],
-      }))
-    : fallbackExperiences;
-
-  const education = cms?.education?.length
-    ? cms.education.map((e: any) => ({
-        degree: e.degree,
-        institution: e.institution,
-        period: e.is_current ? "Currently studying" : e.end_date ? `Completed ${new Date(e.end_date).getFullYear()}` : "",
-      }))
-    : fallbackEducation;
-
-  const projects = cms?.projects?.length
-    ? cms.projects.map((p: any) => ({
-        title: p.title,
-        description: p.full_description ?? p.short_description ?? "",
-        features: p.features ?? [],
-        technologies: p.technologies ?? [],
-        github: p.github_url,
-        githubFrontend: p.github_url && p.github_backend_url ? p.github_url : null,
-        githubBackend: p.github_backend_url,
-        category: p.category ?? "Project",
-      }))
-    : fallbackProjects;
-
-  const skillCategories = cms?.categories?.length
-    ? cms.categories.map((c: any) => ({
-        title: c.name,
-        icon: pickIcon(c.icon, Code2),
-        skills: cms.skills.filter((s: any) => s.category_id === c.id).map((s: any) => s.name),
-      }))
-    : fallbackSkillCategories;
-
-  const socialLinks = cms?.socials?.length
-    ? cms.socials.map((s: any) => ({ icon: pickIcon(s.icon ?? s.platform), label: s.platform, href: s.url }))
-    : fallbackSocialLinks;
-
-  const contactInfo = [
-    { icon: Mail, label: "Email", value: profile?.email ?? "masoodabbas421@gmail.com", href: `mailto:${profile?.email ?? "masoodabbas421@gmail.com"}` },
-    { icon: Phone, label: "Phone", value: profile?.phone ?? "0304 4606847", href: "tel:+923044606847" },
-    { icon: MapPin, label: "Location", value: profile?.location ?? "Lahore, Punjab", href: null },
-  ];
+  const aboutParagraphs = aboutData.paragraphs;
+  const aboutDetails = aboutData.details;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

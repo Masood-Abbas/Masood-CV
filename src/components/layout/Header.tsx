@@ -3,6 +3,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { site } from "@/data/portfolio";
 
 const navLinks = [
   { name: "Home", path: "#home" },
@@ -23,10 +24,10 @@ const Header = () => {
         <div className="flex h-16 items-center justify-between">
           <a href="#home" className="group relative flex items-center gap-1">
             <span className="text-xl font-bold tracking-tight text-foreground transition-colors duration-300 group-hover:text-primary">
-              Masood
+              {site.firstName}
             </span>
             <span className="text-xl font-bold tracking-tight text-primary transition-colors duration-300 group-hover:text-foreground">
-              Abbas
+              {site.lastName}
             </span>
             <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-primary transition-all duration-300 ease-out group-hover:w-full rounded-full" />
           </a>
@@ -42,7 +43,7 @@ const Header = () => {
                 {link.name}
               </a>
             ))}
-            <a href="/Masood_Abbas.pdf" download="Masood_Abbas.pdf">
+            <a href={site.cvPath} download={site.cvPath.split("/").pop()}>
               <Button size="sm" className="gap-2">
                 <Download className="h-4 w-4" />
                 Download CV
@@ -81,7 +82,7 @@ const Header = () => {
                   {link.name}
                 </a>
               ))}
-              <a href="/Masood_Abbas.pdf" download="Masood_Abbas.pdf" className="w-full">
+              <a href={site.cvPath} download={site.cvPath.split("/").pop()} className="w-full">
                 <Button size="sm" className="w-full gap-2">
                   <Download className="h-4 w-4" />
                   Download CV
