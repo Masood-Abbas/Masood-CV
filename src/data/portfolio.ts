@@ -167,4 +167,5 @@ export const contactInfo = [
 export const socialLinks = [
   { icon: Github, label: "GitHub", href: "https://github.com/Masood-Abbas" },
   { icon: Linkedin, label: "LinkedIn", href: "https://linkedin.com/in/masood-abbas" },
+  { icon: Mail, label: "Email", href: "mailto:masoodabas421@gmail.com" },
 ];
