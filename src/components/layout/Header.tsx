@@ -3,6 +3,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { site } from "@/data/portfolio";
 
 const navLinks = [
   { name: "Home", path: "#home" },
