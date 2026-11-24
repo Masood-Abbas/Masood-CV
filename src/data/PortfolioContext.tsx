@@ -1,175 +1,138 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
-import type { PortfolioData } from "./portfolio-types";
-import {
-  CONTENT_STORAGE_KEY,
-  MESSAGES_STORAGE_KEY,
-  clearPortfolio,
-  createMessage,
-  defaultPortfolio,
-  loadMessages,
-  loadPortfolio,
-  normalizePortfolio,
-  savePortfolio,
-  saveMessages,
-  type ContactMessage,
-} from "./store";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { defaultPortfolio, type PortfolioData } from "@/data/portfolio";
+
+// Everything is stored in the browser (localStorage) — no database.
+const STORAGE_KEY = "portfolio-content-v1";
+const PASSWORD_KEY = "portfolio-admin-pass";
+const UNLOCK_KEY = "portfolio-admin-unlocked";
+
+export const DEFAULT_ADMIN_PASS = "admin123";
+
+function loadStored(): PortfolioData {
+  const base: PortfolioData = JSON.parse(JSON.stringify(defaultPortfolio));
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return base;
+    const stored = JSON.parse(raw);
+    // Stored top-level sections override the defaults; missing ones fall back.
+    for (const key of Object.keys(base) as (keyof PortfolioData)[]) {
+      if (stored && stored[key] !== undefined && stored[key] !== null) {
+        (base as any)[key] = stored[key];
+      }
+    }
+  } catch {
+    // corrupted storage — fall back to defaults
+  }
+  return base;
+}
+
+function readStoredRaw(): Partial<PortfolioData> | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
 
 interface PortfolioContextValue {
-  /** Current portfolio content (saved edits merged over the defaults). */
   data: PortfolioData;
-  /** Applies a change and persists it immediately. */
-  update: (updater: (previous: PortfolioData) => PortfolioData) => void;
-  /** Replaces the whole document (used by import). */
-  replace: (next: PortfolioData) => void;
-  /** Restores the bundled default content. */
+  setData: (updater: (prev: PortfolioData) => PortfolioData) => void;
+  save: (next: PortfolioData) => void;
   reset: () => void;
-  /** True when the browser refused to persist the last change. */
-  storageError: boolean;
-  lastSavedAt: Date | null;
-
-  messages: ContactMessage[];
-  addMessage: (input: { name: string; email: string; message: string }) => ContactMessage;
-  setMessageRead: (id: string, read: boolean) => void;
-  deleteMessage: (id: string) => void;
-  clearMessages: () => void;
+  hasChanges: boolean;
 }
 
 const PortfolioContext = createContext<PortfolioContextValue | null>(null);
 
-export const PortfolioProvider = ({ children }: { children: ReactNode }) => {
-  const [data, setData] = useState<PortfolioData>(() => loadPortfolio());
-  const [messages, setMessages] = useState<ContactMessage[]>(() => loadMessages());
-  const [storageError, setStorageError] = useState(false);
-  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+export const PortfolioProvider = ({ children }: { children: React.ReactNode }) => {
+  const [data, setDataState] = useState<PortfolioData>(() => loadStored());
+  const [stored, setStored] = useState<Partial<PortfolioData> | null>(() => readStoredRaw());
 
-  // Mirror of `data` so updates can be computed without stale closures.
-  const dataRef = useRef(data);
-  useEffect(() => {
-    dataRef.current = data;
-  }, [data]);
-
-  const commit = useCallback((next: PortfolioData) => {
-    dataRef.current = next;
-    setData(next);
-    setStorageError(!savePortfolio(next));
-    setLastSavedAt(new Date());
+  const save = useCallback((next: PortfolioData) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      setStored(JSON.parse(JSON.stringify(next)));
+      setDataState(next);
+      window.dispatchEvent(new Event("portfolio-saved"));
+    } catch {
+      // storage full or unavailable — keep the in-memory copy
+    }
   }, []);
-
-  const update = useCallback(
-    (updater: (previous: PortfolioData) => PortfolioData) => {
-      commit(updater(dataRef.current));
-    },
-    [commit],
-  );
-
-  const replace = useCallback(
-    (next: PortfolioData) => {
-      commit(normalizePortfolio(next, defaultPortfolio));
-    },
-    [commit],
-  );
 
   const reset = useCallback(() => {
-    clearPortfolio();
-    const fresh = normalizePortfolio(defaultPortfolio, defaultPortfolio);
-    dataRef.current = fresh;
-    setData(fresh);
-    setStorageError(false);
-    setLastSavedAt(new Date());
+    localStorage.removeItem(STORAGE_KEY);
+    setStored(null);
+    setDataState(JSON.parse(JSON.stringify(defaultPortfolio)));
+    window.dispatchEvent(new Event("portfolio-saved"));
   }, []);
 
-  const persistMessages = useCallback((next: ContactMessage[]) => {
-    setMessages(next);
-    saveMessages(next);
+  const setData = useCallback((updater: (prev: PortfolioData) => PortfolioData) => {
+    setDataState((prev) => updater(prev));
   }, []);
 
-  const addMessage = useCallback(
-    (input: { name: string; email: string; message: string }) => {
-      const message = createMessage(input);
-      persistMessages([message, ...loadMessages()]);
-      return message;
-    },
-    [persistMessages],
-  );
-
-  const setMessageRead = useCallback(
-    (id: string, read: boolean) => {
-      persistMessages(loadMessages().map((message) => (message.id === id ? { ...message, read } : message)));
-    },
-    [persistMessages],
-  );
-
-  const deleteMessage = useCallback(
-    (id: string) => {
-      persistMessages(loadMessages().filter((message) => message.id !== id));
-    },
-    [persistMessages],
-  );
-
-  const clearMessages = useCallback(() => {
-    persistMessages([]);
-  }, [persistMessages]);
-
-  // Pick up edits made in another tab or window.
+  // Keep multiple tabs in sync
   useEffect(() => {
-    const onStorage = (event: StorageEvent) => {
-      if (event.key === null || event.key === CONTENT_STORAGE_KEY) {
-        const next = loadPortfolio();
-        dataRef.current = next;
-        setData(next);
-      }
-      if (event.key === null || event.key === MESSAGES_STORAGE_KEY) {
-        setMessages(loadMessages());
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY) {
+        setDataState(loadStored());
+        setStored(readStoredRaw());
       }
     };
-
+    const onSaved = () => {
+      setDataState(loadStored());
+      setStored(readStoredRaw());
+    };
     window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    window.addEventListener("portfolio-saved", onSaved);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("portfolio-saved", onSaved);
+    };
   }, []);
 
   const value = useMemo<PortfolioContextValue>(
     () => ({
       data,
-      update,
-      replace,
+      setData,
+      save,
       reset,
-      storageError,
-      lastSavedAt,
-      messages,
-      addMessage,
-      setMessageRead,
-      deleteMessage,
-      clearMessages,
+      hasChanges: JSON.stringify(data) !== JSON.stringify(stored ?? defaultPortfolio),
     }),
-    [
-      data,
-      update,
-      replace,
-      reset,
-      storageError,
-      lastSavedAt,
-      messages,
-      addMessage,
-      setMessageRead,
-      deleteMessage,
-      clearMessages,
-    ],
+    [data, stored, setData, save, reset]
   );
 
   return <PortfolioContext.Provider value={value}>{children}</PortfolioContext.Provider>;
 };
 
 export const usePortfolio = () => {
-  const context = useContext(PortfolioContext);
-  if (!context) throw new Error("usePortfolio must be used inside PortfolioProvider");
-  return context;
+  const ctx = useContext(PortfolioContext);
+  if (!ctx) throw new Error("usePortfolio must be used inside PortfolioProvider");
+  return ctx;
 };
+
+// ---------- Simple frontend-only admin gate ----------
+export const isUnlocked = () => {
+  try {
+    return sessionStorage.getItem(UNLOCK_KEY) === "1";
+  } catch {
+    return false;
+  }
+};
+
+export const unlock = (pass: string) => {
+  const expected = localStorage.getItem(PASSWORD_KEY) || DEFAULT_ADMIN_PASS;
+  if (pass !== expected) return false;
+  sessionStorage.setItem(UNLOCK_KEY, "1");
+  return true;
+};
+
+export const lock = () => {
+  sessionStorage.removeItem(UNLOCK_KEY);
+};
+
+export const setAdminPass = (pass: string) => {
+  if (pass.trim().length >= 4) localStorage.setItem(PASSWORD_KEY, pass.trim());
+};
+
+export const hasCustomPass = () => Boolean(localStorage.getItem(PASSWORD_KEY));

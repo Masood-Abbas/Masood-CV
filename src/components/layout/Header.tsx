@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Download, Menu, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { usePortfolio } from "@/data/PortfolioContext";
+import { useState } from "react";
 
-const navSections = [
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { site } from "@/data/portfolio";
+
+const navLinks = [
   { name: "Home", path: "#home" },
   { name: "About", path: "#about" },
   { name: "Experience", path: "#experience" },
@@ -15,16 +16,7 @@ const navSections = [
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { data } = usePortfolio();
-  const { site } = data;
-
-  // Close the mobile menu when the viewport grows past the breakpoint.
-  useEffect(() => {
-    const media = window.matchMedia("(min-width: 768px)");
-    const onChange = () => media.matches && setIsOpen(false);
-    media.addEventListener("change", onChange);
-    return () => media.removeEventListener("change", onChange);
-  }, []);
+  
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 glass-card border-b border-border/30">
@@ -42,8 +34,12 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            {navSections.map((link) => (
-              <a key={link.path} href={link.path} className="nav-link text-sm font-medium">
+            {navLinks.map((link) => (
+              <a
+                key={link.path}
+                href={link.path}
+                className="nav-link text-sm font-medium"
+              >
                 {link.name}
               </a>
             ))}
@@ -60,7 +56,6 @@ const Header = () => {
             className="md:hidden text-foreground p-2"
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Toggle menu"
-            aria-expanded={isOpen}
           >
             {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
@@ -77,7 +72,7 @@ const Header = () => {
             className="md:hidden glass-card border-t border-border/30"
           >
             <nav className="container mx-auto px-4 py-4 flex flex-col gap-4">
-              {navSections.map((link) => (
+              {navLinks.map((link) => (
                 <a
                   key={link.path}
                   href={link.path}

@@ -1,11 +1,14 @@
-import { Lock } from "lucide-react";
-import { usePortfolio } from "@/data/PortfolioContext";
-import { getIcon } from "@/data/icons";
+import { Github, Linkedin, Mail } from "lucide-react";
+import { site, socialLinks } from "@/data/portfolio";
+
+const iconMap: Record<string, any> = {
+  GitHub: Github,
+  Linkedin: Linkedin,
+  Mail: Mail,
+};
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  const { data } = usePortfolio();
-  const { site, socialLinks } = data;
 
   return (
     <footer className="border-t border-border/30 py-8">
@@ -16,10 +19,10 @@ const Footer = () => {
           </p>
           <div className="flex items-center gap-4">
             {socialLinks.map((link) => {
-              const Icon = getIcon(link.icon);
+              const Icon = iconMap[link.label] ?? Mail;
               return (
                 <a
-                  key={`${link.label}-${link.href}`}
+                  key={link.label}
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -30,14 +33,6 @@ const Footer = () => {
                 </a>
               );
             })}
-            <a
-              href="/admin"
-              className="text-muted-foreground/50 hover:text-primary transition-colors"
-              aria-label="Admin panel"
-              title="Admin panel"
-            >
-              <Lock className="h-4 w-4" />
-            </a>
           </div>
         </div>
       </div>
