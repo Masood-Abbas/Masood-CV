@@ -224,3 +224,17 @@ export const defaultPortfolio: PortfolioData = {
     { icon: "MapPin", label: "Location", value: "Lahore, Punjab", href: null },
   ],
 };
+
+// Named exports keep the public page compatible with the data-driven shape
+// while the admin/editor continues to use the complete portfolio object.
+export const {
+  site,
+  hero,
+  about,
+  education,
+  experiences,
+  projects,
+  skillCategories,
+  socialLinks,
+  contactInfo,
+} = defaultPortfolio;

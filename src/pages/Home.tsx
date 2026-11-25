@@ -33,6 +33,7 @@ import {
   socialLinks,
   contactInfo,
 } from "@/data/portfolio";
+import { getIcon } from "@/data/icons";
 
 const Interactive3DBackground = lazy(() => import("@/components/3d/Interactive3DBackground"));
 
@@ -152,7 +153,10 @@ const Home = () => {
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 0.4 }} className="flex items-center justify-center gap-6">
                 {socialLinks.map((link) => (
                   <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors p-2" aria-label={link.label}>
-                    <link.icon className="h-6 w-6" />
+                    {(() => {
+                      const Icon = getIcon(link.icon, Mail);
+                      return <Icon className="h-6 w-6" />;
+                    })()}
                   </a>
                 ))}
               </motion.div>
@@ -188,7 +192,10 @@ const Home = () => {
               {aboutDetails.map((detail, index) => (
                 <motion.div key={detail.label} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: index * 0.1 }} className="glass-card rounded-xl p-6 flex items-center gap-4">
                   <div className="p-3 rounded-lg bg-primary/10 text-primary">
-                    <detail.icon className="h-5 w-5" />
+                    {(() => {
+                      const Icon = getIcon(detail.icon);
+                      return <Icon className="h-5 w-5" />;
+                    })()}
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">{detail.label}</p>
@@ -341,7 +348,10 @@ const Home = () => {
               <motion.div key={category.title} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: index * 0.1 }} className="glass-card rounded-2xl p-6">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="p-3 rounded-lg bg-primary/10 text-primary">
-                    <category.icon className="h-6 w-6" />
+                    {(() => {
+                      const Icon = getIcon(category.icon);
+                      return <Icon className="h-6 w-6" />;
+                    })()}
                   </div>
                   <h3 className="text-xl font-semibold">{category.title}</h3>
                 </div>
@@ -373,7 +383,10 @@ const Home = () => {
                 {contactInfo.map((info) => (
                   <div key={info.label} className="flex items-center gap-4">
                     <div className="p-3 rounded-lg bg-primary/10 text-primary">
-                      <info.icon className="h-5 w-5" />
+                      {(() => {
+                        const Icon = getIcon(info.icon);
+                        return <Icon className="h-5 w-5" />;
+                      })()}
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">{info.label}</p>
@@ -390,8 +403,11 @@ const Home = () => {
                 <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Connect with me</h4>
                 <div className="flex gap-3">
                   {socialLinks.map((link) => (
-                    <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-secondary hover:bg-primary/10 hover:text-primary transition-colors" aria-label={link.label}>
-                      <link.icon className="h-5 w-5" />
+                      <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer" className="p-3 rounded-lg bg-secondary hover:bg-primary/10 hover:text-primary transition-colors" aria-label={link.label}>
+                      {(() => {
+                        const Icon = getIcon(link.icon, Mail);
+                        return <Icon className="h-5 w-5" />;
+                      })()}
                     </a>
                   ))}
                 </div>
